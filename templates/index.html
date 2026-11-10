@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Моя ИИ-Таролог</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #EEF2FF, #E8EEFB);
+            font-family: 'Inter', sans-serif;
+            color: #2E2A5B;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(165, 180, 252, 0.2);
+            width: 100%;
+            max-width: 500px;
+        }
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 0;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: 400;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            border: 1px solid #C7D2FE;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+            background: #F8FAFC;
+            color: #2E2A5B;
+        }
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 14px;
+            background: #A5B4FC;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #8B9DF0;
+        }
+        #result {
+            margin-top: 25px;
+            padding: 15px;
+            background: #F8FAFC;
+            border-radius: 12px;
+            font-size: 14px;
+            white-space: pre-wrap;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔮 Моя ИИ-Таролог</h1>
+
+        <label for="question">Ваш вопрос:</label>
+        <textarea id="question" rows="3" placeholder="Например: Что меня ждет в отношениях?"></textarea>
+
+        <label for="cards">Выпавшие карты (через запятую):</label>
+        <input type="text" id="cards" placeholder="Например: Маг, 7 кубков, Башня">
+
+        <button onclick="askTarot()">Получить трактовку</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function askTarot() {
+            const question = document.getElementById('question').value;
+            const cards = document.getElementById('cards').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!cards) {
+                alert("Пожалуйста, введите карты!");
+                return;
+            }
+
+            resultDiv.style.display = 'block';
+            resultDiv.innerText = "ИИ задумался над вашим раскладом... ⏳";
+
+            try {
+                // Отправляем данные на сервер
+                const response = await fetch('/api/tarot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: question, cards: cards })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerText = data.interpretation;
+                } else {
+                    resultDiv.innerText = "ОШИБКА СЕРВЕРА:\n" + JSON.stringify(data, null, 2);resultDiv.innerText = "ОШИБКА СЕРВЕРА:\n" + JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                resultDiv.innerText = "Ошибка сети. Проверьте, запущен ли сервер.";
+            }
+        }
+    </script>
+</body>
+</html>
